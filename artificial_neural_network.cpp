@@ -74,7 +74,6 @@ Matrix operator*(double scallar, const Matrix & m)
 Matrix Matrix::operator/(double scallar) const
 {
 	Matrix out(this->rows, this->cols, false);
-	cout << "operator / construct" << endl;
 	for (int y = 0; y < rows; y ++){
         for (int x = 0; x < cols; x++){
             out.matrix[y * cols + x] = this->matrix[y * cols + x] / scallar;
@@ -221,7 +220,7 @@ Matrix Matrix::t() const
     Matrix res(cols, rows, false);
     for (int y = 0; y < rows; y ++){
         for (int x = 0; x < cols; x++){
-            res.matrix[x * cols + y] = this->matrix[y * cols + x];
+            res.matrix[x * rows + y] = this->matrix[y * cols + x];
         }
     }
     return res;
@@ -301,10 +300,8 @@ Matrix Linear_layer::forward(const Matrix & input)
 Matrix Linear_layer::backward(const Matrix & pre_grad)
 {
     int batch_size = this->input.get_batch();
-    this->input.show_shape();
     this->grad = this->input.t().multiple(pre_grad);
-//    this->grad = pre_grad.t().multiple(this->input);
-    this->grad.show_shape();
+
     this->grad.divide_scallar_(batch_size);
     Matrix next_grad = pre_grad.multiple(this->weight.t());
     return next_grad;
@@ -323,22 +320,16 @@ int main()
     Util::random_seed(int(time(0)));
     vector<Layer_base *> network;
     Linear_layer fc1(784, 10);
-    cout << "linear construct ok" << endl;
     network.push_back(&fc1);
     Matrix input(batch_size, 784);
-    cout << "input " << endl;
     Matrix output = input;
-    cout << "output " << endl;
 
     for (int i = 0; i < network.size(); i++){
         output = network[i]->forward(output);
-        cout << "forward " << i << endl;
     }
-    cout << "forward end" << endl;
     output.show_shape();
     Matrix loss_matrix = output/batch_size;
     Matrix pre_grad = loss_matrix;
-    cout << "ok" << endl;
 	for (int i = 0; i < network.size(); i++){
         pre_grad = network[i]->backward(pre_grad);
     }
