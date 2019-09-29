@@ -41,6 +41,7 @@ public:
     Matrix & operator = (const Matrix & another_matrix);
     int get_batch() const {return rows;}
     int get_features() const {return cols;}
+    int * get_matrix() const {return matrix;}
     Matrix t() const;
     void show_shape() const;
 private:
@@ -285,7 +286,9 @@ void Linear_layer::zero_grad_()
 void Linear_layer::update_weight(double learn_rate)
 {
     grad.multiple_scallar_(learn_rate);
+    bias_grad.multiple_scallar_(learn_rate);
     weight.plus_(grad);
+    bias.plus_(bias_grad);
     zero_grad_();
 }
 
@@ -301,10 +304,61 @@ Matrix Linear_layer::backward(const Matrix & pre_grad)
 {
     int batch_size = this->input.get_batch();
     this->grad = this->input.t().multiple(pre_grad);
-
     this->grad.divide_scallar_(batch_size);
+    this->bias_grad = pre_grad;
     Matrix next_grad = pre_grad.multiple(this->weight.t());
     return next_grad;
+}
+
+class ReLU_layer : public Layer_base
+{
+public:
+	virtual Matrix forward(const Matrix & input);
+	virtual Matrix backward(const Matrix & pre_grad);
+	virtual void update_weight(double learn_rate = 0.001){}	// relu layer has no weight
+	ReLU_layer(){}
+	~ReLU_layer(){}
+private:
+	Matrix input;
+};
+
+Matrix ReLU_layer::forward(const Matrix& input)
+{
+	this->input = input;
+	Matrix output = input;
+	int rows = input.get_batch();
+	int cols = input.get_features();
+	int * input_matrix = input.get_matrix();
+	int * output_matrix = output.get_matrix();
+	for (int y = 0; y < rows; y ++){
+        for (int x = 0; x < cols; x++){
+			if (input_matrix[y * cols + x] > 0){
+				output_matrix[y * cols + x] = input_matrix[y * cols + x];
+			}
+            else {
+				output_matrix[y * cols + x] = 0;
+            }
+        }
+    }
+    return output;
+}
+
+Matrix ReLU_layer::backward(const Matrix& pre_grad)
+{
+	assert((pre_grad.get_batch() == input.get_batch()) && (pre_grad.get_features() == input.get_features()));
+	Matrix next_grad = pre_grad;
+	int * input_matrix = this->input.get_matrix();
+	int * next_grad_matrix = next_grad.get_matrix();
+	for (int y = 0; y < rows; y ++){
+        for (int x = 0; x < cols; x++){
+			if (input_matrix[y * cols + x] > 0){
+				next_grad_matrix[y * cols + x] = pre_grad[y * cols + x];
+			}
+            else {
+				next_grad_matrix[y * cols + x] = 0;
+            }
+        }
+    }
 }
 
 void no_more_memory()
@@ -316,20 +370,22 @@ void no_more_memory()
 int main()
 {
 	set_new_handler(no_more_memory);
-    int batch_size = 1;
+    int batch_size = 2;
     Util::random_seed(int(time(0)));
     vector<Layer_base *> network;
-    Linear_layer fc1(784, 10);
+    Linear_layer fc1(5, 3);
     network.push_back(&fc1);
-    Matrix input(batch_size, 784);
+    Matrix input(batch_size, 5);
     Matrix output = input;
+    input.print();
 
     for (int i = 0; i < network.size(); i++){
         output = network[i]->forward(output);
     }
-    output.show_shape();
-    Matrix loss_matrix = output/batch_size;
-    Matrix pre_grad = loss_matrix;
+    output.print();
+    int loss_array[6] = {1, 1, 1, 1, 1, 1};
+    Matrix loss_matrix(loss_array, 2, 3);
+    Matrix pre_grad = loss_matrix/batch_size;
 	for (int i = 0; i < network.size(); i++){
         pre_grad = network[i]->backward(pre_grad);
     }
