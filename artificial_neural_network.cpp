@@ -331,15 +331,15 @@ Matrix ReLU_layer::forward(const Matrix& input)
 	int * input_matrix = input.get_matrix();
 	int * output_matrix = output.get_matrix();
 	for (int y = 0; y < rows; y ++){
-        for (int x = 0; x < cols; x++){
+		for (int x = 0; x < cols; x++){
 			if (input_matrix[y * cols + x] > 0){
 				output_matrix[y * cols + x] = input_matrix[y * cols + x];
 			}
-            else {
+			else {
 				output_matrix[y * cols + x] = 0;
-            }
-        }
-    }
+			}
+		}
+	}
     return output;
 }
 
@@ -357,8 +357,8 @@ Matrix ReLU_layer::backward(const Matrix& pre_grad)
 			else {
 				next_grad_matrix[y * cols + x] = 0;
 			}
-        }
-    }
+		}
+	}
     return next_grad;
 }
 
