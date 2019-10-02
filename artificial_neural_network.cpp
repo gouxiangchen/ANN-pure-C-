@@ -52,8 +52,8 @@ private:
 
 Matrix operator+(double scallar, const Matrix & m)
 {
-	Matrix out(m.rows, m.cols, false);
-	for (int y = 0; y < m.rows; y ++){
+    Matrix out(m.rows, m.cols, false);
+    for (int y = 0; y < m.rows; y ++){
         for (int x = 0; x < m.cols; x++){
             out.matrix[y * m.cols + x] = m.matrix[y * m.cols + x] + scallar;
         }
@@ -63,8 +63,8 @@ Matrix operator+(double scallar, const Matrix & m)
 
 Matrix operator*(double scallar, const Matrix & m)
 {
-	Matrix out(m.rows, m.cols, false);
-	for (int y = 0; y < m.rows; y ++){
+    Matrix out(m.rows, m.cols, false);
+    for (int y = 0; y < m.rows; y ++){
         for (int x = 0; x < m.cols; x++){
             out.matrix[y * m.cols + x] = m.matrix[y * m.cols + x] * scallar;
         }
@@ -74,8 +74,8 @@ Matrix operator*(double scallar, const Matrix & m)
 
 Matrix Matrix::operator/(double scallar) const
 {
-	Matrix out(this->rows, this->cols, false);
-	for (int y = 0; y < rows; y ++){
+    Matrix out(this->rows, this->cols, false);
+    for (int y = 0; y < rows; y ++){
         for (int x = 0; x < cols; x++){
             out.matrix[y * cols + x] = this->matrix[y * cols + x] / scallar;
         }
@@ -132,7 +132,7 @@ Matrix::Matrix(int r, int c, bool random)
 {
     this->rows = r;
     this->cols = c;
-	this->matrix = new double[rows * cols];
+    this->matrix = new double[rows * cols];
     cout << "new " << rows << " * " << cols << " memory" << endl;
     if (random){
         for (int y = 0; y < rows; y ++){
@@ -313,64 +313,64 @@ Matrix Linear_layer::backward(const Matrix & pre_grad)
 class ReLU_layer : public Layer_base
 {
 public:
-	virtual Matrix forward(const Matrix & input);
-	virtual Matrix backward(const Matrix & pre_grad);
-	virtual void update_weight(double learn_rate = 0.001){}	// relu layer has no weight
-	ReLU_layer(){}
-	~ReLU_layer(){}
+    virtual Matrix forward(const Matrix & input);
+    virtual Matrix backward(const Matrix & pre_grad);
+    virtual void update_weight(double learn_rate = 0.001){}	// relu layer has no weight
+    ReLU_layer(){}
+    ~ReLU_layer(){}
 private:
-	Matrix input;
+    Matrix input;
 };
 
 Matrix ReLU_layer::forward(const Matrix& input)
 {
-	this->input = input;
-	Matrix output = input;
-	int rows = input.get_batch();
-	int cols = input.get_features();
-	int * input_matrix = input.get_matrix();
-	int * output_matrix = output.get_matrix();
-	for (int y = 0; y < rows; y ++){
-		for (int x = 0; x < cols; x++){
-			if (input_matrix[y * cols + x] > 0){
-				output_matrix[y * cols + x] = input_matrix[y * cols + x];
-			}
-			else {
-				output_matrix[y * cols + x] = 0;
-			}
-		}
-	}
+    this->input = input;
+    Matrix output = input;
+    int rows = input.get_batch();
+    int cols = input.get_features();
+    int * input_matrix = input.get_matrix();
+    int * output_matrix = output.get_matrix();
+    for (int y = 0; y < rows; y ++){
+        for (int x = 0; x < cols; x++){
+            if (input_matrix[y * cols + x] > 0){
+                output_matrix[y * cols + x] = input_matrix[y * cols + x];
+            }
+            else {
+                output_matrix[y * cols + x] = 0;
+            }
+        }
+    }
     return output;
 }
 
 Matrix ReLU_layer::backward(const Matrix& pre_grad)
 {
-	assert((pre_grad.get_batch() == input.get_batch()) && (pre_grad.get_features() == input.get_features()));
-	Matrix next_grad = pre_grad;
-	int * input_matrix = this->input.get_matrix();
-	int * next_grad_matrix = next_grad.get_matrix();
-	for (int y = 0; y < rows; y ++){
-		for (int x = 0; x < cols; x++){
-			if (input_matrix[y * cols + x] > 0){
-				next_grad_matrix[y * cols + x] = pre_grad[y * cols + x];
-			}
-			else {
-				next_grad_matrix[y * cols + x] = 0;
-			}
-		}
-	}
+    assert((pre_grad.get_batch() == input.get_batch()) && (pre_grad.get_features() == input.get_features()));
+    Matrix next_grad = pre_grad;
+    int * input_matrix = this->input.get_matrix();
+    int * next_grad_matrix = next_grad.get_matrix();
+    for (int y = 0; y < rows; y ++){
+        for (int x = 0; x < cols; x++){
+            if (input_matrix[y * cols + x] > 0){
+                next_grad_matrix[y * cols + x] = pre_grad[y * cols + x];
+            }
+            else {
+                next_grad_matrix[y * cols + x] = 0;
+            }
+        }
+    }
     return next_grad;
 }
 
 void no_more_memory()
 {
-	cout << "no more memory" << endl;
-	exit(-1);
+    cout << "no more memory" << endl;
+    exit(-1);
 }
 
 int main()
 {
-	set_new_handler(no_more_memory);
+    set_new_handler(no_more_memory);
     int batch_size = 2;
     Util::random_seed(int(time(0)));
     vector<Layer_base *> network;
@@ -387,7 +387,7 @@ int main()
     int loss_array[6] = {1, 1, 1, 1, 1, 1};
     Matrix loss_matrix(loss_array, 2, 3);
     Matrix pre_grad = loss_matrix/batch_size;
-	for (int i = 0; i < network.size(); i++){
+    for (int i = 0; i < network.size(); i++){
         pre_grad = network[i]->backward(pre_grad);
     }
     return 0;
