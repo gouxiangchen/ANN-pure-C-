@@ -350,13 +350,13 @@ Matrix ReLU_layer::backward(const Matrix& pre_grad)
 	int * input_matrix = this->input.get_matrix();
 	int * next_grad_matrix = next_grad.get_matrix();
 	for (int y = 0; y < rows; y ++){
-        for (int x = 0; x < cols; x++){
+		for (int x = 0; x < cols; x++){
 			if (input_matrix[y * cols + x] > 0){
 				next_grad_matrix[y * cols + x] = pre_grad[y * cols + x];
 			}
-            else {
+			else {
 				next_grad_matrix[y * cols + x] = 0;
-            }
+			}
         }
     }
     return next_grad;
