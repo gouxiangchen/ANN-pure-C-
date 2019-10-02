@@ -359,6 +359,7 @@ Matrix ReLU_layer::backward(const Matrix& pre_grad)
             }
         }
     }
+    return next_grad;
 }
 
 void no_more_memory()
